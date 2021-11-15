@@ -37,11 +37,13 @@ int main(int argc, char* argv[])
         check(client_socket,"Accept Fail!!!");
         printf("Connected\n");
         // handle_connection(client_socket);
-        
+        int value = 1;
+        setsockopt(client_socket, SOL_SOCKET, MSG_NOSIGNAL, &value, sizeof(value));
         pthread_t t;
         int *pclient  = malloc(sizeof(int));
         *pclient = client_socket;
         pthread_create(&t, NULL, handle_connection, pclient);
+
         // send(client_socket, server_message, sizeof(server_message), 0);
     }
 
@@ -115,11 +117,15 @@ void* handle_connection(void* p_client_socket)
     while ((bytes_read = fread(buffer, 1 ,BUFSIZE, fp)) > 0)
     {
         printf("sending %zu bytes\n", bytes_read);
-        write(client_socket, buffer, bytes_read);
+        int write_status = write(client_socket, buffer, bytes_read);
+        if (write_status == -1) break;
     }
 
     close(client_socket);
     fclose(fp);
     printf("closing connection\n");
+    //avoid memery leak
+    pthread_detach(pthread_self());
+    // int a = PTHREAD_STACK_MIN;
     return NULL;
 }

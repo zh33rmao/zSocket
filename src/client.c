@@ -31,12 +31,15 @@ int main(int argc, char* argv[])
     // printf("connect to server success\n");
     int send_bytes = send(socks, filename, strlen(filename),0);
     // write(socks, filename, sizeof(filename));
+    // if file larger than 4096; printf the first 4096 packet;
     char server_recv[4096];
     recv(socks, &server_recv,sizeof(server_recv),0);
     end_time = clock();
     double run_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
-    // printf("server responses: \n");
+    printf("server responses: \n");
+    printf("%s\n",server_recv);
     printf("Elapsed: %f(s)\n",run_time);
-    close(socks);    
+    sleep(1);
+    close(socks);
     return 0;
 }
